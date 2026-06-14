@@ -2871,7 +2871,7 @@ http://92.176.119.180:2095/play/a179
 
 #EXTINF:-1 tvg-id="Trece.py@SD" tvg-logo="https://i.imgur.com/cgIv5QK.png" group-title="General" referrer="https://www.trece.com.py", Trece (1080p)
 #EXTVLCOPT:http-referrer=https://www.trece.com.py/
-https://live2.eu-north-1a.cf.dmcdn.net/sec2(Opd7UcA2yfpUH7AyI6qjNAchfQhTyF5hehQWfqJCXY_TVO2cRNQZPoMkELRx4toBvRQA1iV_wcHbb3g8jXtC0lPdiYAF3YRlQlZSSFDa-_HolJDCAfPnOANJg5BxnDKg)/cloud/3/x9ksaba/s/live-720.m3u8
+https://live2.eu-north-1a.cf.dmcdn.net/sec2(e2s0Js95e3SCdU742B5wFZm0NnZYOB_VRLTeb3_XNYKFhXraYbOa6gKBO38duCy5mixD0nM6F11Ls9fdpneJl9Z170km_-QdvEW5aeuOptUgPB7dxmkX-xjJJXF0Yu41)/cloud/3/x9ksaba/s/live-720.m3u8
 
 #EXTINF:-1 tvg-id="TribunaTV.sv@SD" tvg-logo="https://i.imgur.com/C5vHpd0.png" group-title="News",TribunaTV (720p) [Not 24/7]
 https://cloudflare.streamgato.us:3300/live/tribunatvlive.m3u8
