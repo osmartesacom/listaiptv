@@ -46,27 +46,24 @@ def actualizar_lista_m3u(nuevo_enlace):
     with open(archivo_m3u, "r", encoding="utf-8") as f:
         lineas = f.readlines()
 
-    nuevas_lineas = []
     modificado = False
 
-    # Recorremos tu lista buscando el canal GEN
-    for i, linea in enumerate(lineas):
-        nuevas_lineas.append(linea)
-        # Si encuentra tu etiqueta de GEN, modificará la línea siguiente (que es la URL)
-        if 'tvg-id="GEN"' in linea or ',GEN' in linea:
-            if i + 1 < len(lineas):
-                lineas[i + 1] = nuevo_enlace + "\n"
+    # Recorremos tu lista buscando tu identificador exacto: "Gen.py@SD"
+    for i in range(len(lineas)):
+        if 'tvg-id="Gen.py@SD"' in lineas[i]:
+            # Comprobamos que existan las líneas de abajo para no desbordar el archivo
+            if i + 2 < len(lineas):
+                # Tu enlace real está dos líneas más abajo de la etiqueta #EXTINF (saltando el #EXTVLCOPT)
+                lineas[i + 2] = nuevo_enlace + "\n"
                 modificado = True
+                break
 
     if modificado:
         with open(archivo_m3u, "w", encoding="utf-8") as f:
             f.writelines(lineas)
-        print("¡El enlace de GEN en tu lista M3U ha sido actualizado con éxito!")
+        print("¡El enlace de GEN ha sido actualizado correctamente en tu línea 1251!")
     else:
-        # Si no tenías a GEN agregado aún, lo sumamos al final de la lista
-        with open(archivo_m3u, "a", encoding="utf-8") as f:
-            f.write(f'\n#EXTINF:-1 tvg-id="GEN" tvg-logo="https://gen.com.py" group-title="Paraguay",GEN TV\n{nuevo_enlace}\n')
-        print("No se encontró GEN en la lista, por lo que se agregó al final.")
+        print("ERROR: No se encontró la etiqueta tvg-id=\"Gen.py@SD\" en tu archivo.")
 
 if __name__ == "__main__":
     url_capturada = extraer_link_gen()
