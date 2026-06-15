@@ -16,12 +16,13 @@ def extraer_link_gen():
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     driver.get("https://gen.com.py")
     
-    time.sleep(15)  # Subimos a 15 segundos para asegurar la carga completa
+    time.sleep(15)  # Espera a que cargue el reproductor web
     
     link_m3u8 = None
     logs = driver.get_log("performance")
     driver.quit()
     
+    # Primero buscamos la playlist principal (master / playlist)
     for entry in logs:
         try:
             log = json.loads(entry["message"])["message"]
@@ -30,11 +31,26 @@ def extraer_link_gen():
                 request_data = params.get("request", {})
                 url = request_data.get("url", "")
                 
-                if ".m3u8" in url and "token=" in url:
+                # Buscamos que sea un m3u8, que tenga token/llave y que NO sea una chunklist temporal
+                if ".m3u8" in url and ("token=" in url or "k=" in url) and "chunklist" not in url:
                     link_m3u8 = url
+                    print(f"Playlist principal encontrada: {link_m3u8}")
                     break
         except Exception:
-            continue  # Si un log no tiene la estructura esperada, lo salta sin romper el script
+            continue
+
+    # Si por alguna razón no halló la principal, buscamos cualquier m3u8 con llave como respaldo
+    if not link_m3u8:
+        for entry in logs:
+            try:
+                log = json.loads(entry["message"])["message"]
+                if "Network.requestWillBeSent" in log["method"]:
+                    url = log["params"]["request"]["url"]
+                    if ".m3u8" in url and ("token=" in url or "k=" in url):
+                        link_m3u8 = url
+                        break
+            except Exception:
+                continue
                 
     return link_m3u8
 
@@ -64,7 +80,7 @@ def actualizar_lista_m3u(nuevo_enlace):
     if modificado:
         with open(archivo_m3u, "w", encoding="utf-8") as f:
             f.writelines(lineas)
-        print("¡El enlace de GEN ha sido actualizado correctamente en tu línea!")
+        print("¡El enlace de GEN ha sido actualizado con la playlist correcta!")
     else:
         print("ERROR: No se encontró la etiqueta tvg-id=\"Gen.py@SD\" en tu archivo.")
 
