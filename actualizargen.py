@@ -16,13 +16,12 @@ def extraer_link_gen():
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     driver.get("https://gen.com.py")
     
-    time.sleep(15)  # Espera a que cargue el reproductor web
+    time.sleep(15)  # Espera a que cargue el streaming
     
     link_m3u8 = None
     logs = driver.get_log("performance")
     driver.quit()
     
-    # Primero buscamos la playlist principal (master / playlist)
     for entry in logs:
         try:
             log = json.loads(entry["message"])["message"]
@@ -31,26 +30,21 @@ def extraer_link_gen():
                 request_data = params.get("request", {})
                 url = request_data.get("url", "")
                 
-                # Buscamos que sea un m3u8, que tenga token/llave y que NO sea una chunklist temporal
-                if ".m3u8" in url and ("token=" in url or "k=" in url) and "chunklist" not in url:
+                # Captura el enlace m3u8 con token
+                if ".m3u8" in url and ("token=" in url or "k=" in url):
                     link_m3u8 = url
-                    print(f"Playlist principal encontrada: {link_m3u8}")
                     break
         except Exception:
             continue
-
-    # Si por alguna razón no halló la principal, buscamos cualquier m3u8 con llave como respaldo
-    if not link_m3u8:
-        for entry in logs:
-            try:
-                log = json.loads(entry["message"])["message"]
-                if "Network.requestWillBeSent" in log["method"]:
-                    url = log["params"]["request"]["url"]
-                    if ".m3u8" in url and ("token=" in url or "k=" in url):
-                        link_m3u8 = url
-                        break
-            except Exception:
-                continue
+            
+    # CORRECCIÓN DE RUTA: Si captura un chunklist temporal, lo convertimos en la playlist maestra estable
+    if link_m3u8 and "chunklist_" in link_m3u8:
+        print(f"Enlace temporal detectado: {link_m3u8}")
+        # Reemplaza 'chunklist_xxxx.m3u8' por 'playlist.m3u8' manteniendo los tokens intactos
+        parte_url, parte_tokens = link_m3u8.split('.m3u8?')
+        base_url = parte_url.rsplit('/', 1)[0]
+        link_m3u8 = f"{base_url}/playlist.m3u8?{parte_tokens}"
+        print(f"Enlace maestro corregido: {link_m3u8}")
                 
     return link_m3u8
 
@@ -80,7 +74,7 @@ def actualizar_lista_m3u(nuevo_enlace):
     if modificado:
         with open(archivo_m3u, "w", encoding="utf-8") as f:
             f.writelines(lineas)
-        print("¡El enlace de GEN ha sido actualizado con la playlist correcta!")
+        print("¡El enlace de GEN ha sido corregido a playlist.m3u8 con éxito!")
     else:
         print("ERROR: No se encontró la etiqueta tvg-id=\"Gen.py@SD\" en tu archivo.")
 
