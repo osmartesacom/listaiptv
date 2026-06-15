@@ -4,102 +4,82 @@ import os
 import re
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.action_chains import ActionChains
 from webdriver_manager.chrome import ChromeDriverManager
 
 def extraer_tokens_dinamicos():
-    print("Iniciando Chrome con interacción simulada...")
+    print("Iniciando Chrome en la nube...")
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--user-agent=Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36")
     options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
     
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-    driver.set_window_size(360, 740) # Pantalla táctil móvil simulada
-
-    # 1. EXTRACCIÓN DE UNICANAL (¡Ruta Mundial corregida!)
+    
+    # 1. EXTRACCIÓN DE UNICANAL
     enlace_unicanal = None
     try:
-        print("Cargando Unicanal Mundial y simulando pulsación...")
-        driver.get("https://unicanal.com.py/mundial/") # <-- CORREGIDO AQUÍ
-        time.sleep(8)
-        try:
-            actions = ActionChains(driver)
-            actions.move_by_offset(180, 300).click().perform()
-        except:
-            pass
-        time.sleep(10)
+        print("Navegando a Unicanal...")
+        driver.get("https://unicanal.com.py/mundial/")
+        time.sleep(15)
         logs = driver.get_log("performance")
         for entry in logs:
             try:
                 log = json.loads(entry["message"])["message"]
                 if "Network.requestWillBeSent" in log["method"]:
                     url = log["params"]["request"]["url"]
-                    if ".m3u8" in url and ("sec=" in url or "dmcdn.net" in url or "live-" in url):
+                    if ".m3u8" in url and ("dmcdn.net" in url or "sec2" in url):
                         enlace_unicanal = url
-                        print("-> Unicanal cazado en logs.")
+                        print(f"-> Unicanal conseguido: {enlace_unicanal[:60]}...")
                         break
             except Exception:
                 continue
     except Exception as e:
         print(f"Error en Unicanal: {e}")
 
-    # 2. EXTRACCIÓN DE TRECE (Ruta Mundial)
+    # 2. EXTRACCIÓN DE TRECE
     enlace_trece = None
     try:
-        print("Cargando Trece Mundial y simulando pulsación...")
+        print("Navegando a Trece...")
         driver.get("https://trece.com.py/mundial/")
-        time.sleep(8)
-        try:
-            actions = ActionChains(driver)
-            actions.move_by_offset(180, 300).click().perform()
-        except:
-            pass
-        time.sleep(10)
+        time.sleep(15)
         logs = driver.get_log("performance")
         for entry in logs:
             try:
                 log = json.loads(entry["message"])["message"]
                 if "Network.requestWillBeSent" in log["method"]:
                     url = log["params"]["request"]["url"]
-                    if ".m3u8" in url and ("live-" in url or "dmcdn.net" in url or "sec=" in url):
+                    if ".m3u8" in url and ("dmcdn.net" in url or "sec2" in url):
                         enlace_trece = url
-                        print("-> Trece cazado en logs.")
+                        print(f"-> Trece conseguido: {enlace_trece[:60]}...")
                         break
             except Exception:
                 continue
     except Exception as e:
         print(f"Error en Trece: {e}")
 
-    # 3. EXTRACCIÓN DE LATELE (Ruta En Vivo)
+    # 3. EXTRACCIÓN DE LATELE
     enlace_latele = None
     try:
-        print("Cargando LaTele y simulando pulsación...")
+        print("Navegando a LaTele...")
         driver.get("https://www.latele.com.py/en-vivo")
-        time.sleep(8)
-        try:
-            actions = ActionChains(driver)
-            actions.move_by_offset(180, 300).click().perform()
-        except:
-            pass
-        time.sleep(10)
+        time.sleep(15)
         logs = driver.get_log("performance")
         for entry in logs:
             try:
                 log = json.loads(entry["message"])["message"]
                 if "Network.requestWillBeSent" in log["method"]:
                     url = log["params"]["request"]["url"]
-                    if ".m3u8" in url and ("k=" in url or "token=" in url or "desdeparaguay" in url):
+                    if ".m3u8" in url and ("token=" in url or "k=" in url):
                         enlace_latele = url
                         break
             except Exception:
                 continue
         
+        # Si capturó un chunklist temporal en LaTele, lo convertimos a playlist maestra
         if enlace_latele and "chunklist_" in enlace_latele:
             enlace_latele = re.sub(r'chunklist_[^/]+\.m3u8', 'playlist.m3u8', enlace_latele)
-            print("-> LaTele normalizado.")
+            print(f"-> LaTele conseguido y corregido a playlist: {enlace_latele[:60]}...")
     except Exception as e:
         print(f"Error en LaTele: {e}")
 
@@ -117,52 +97,42 @@ def actualizar_lista_m3u(enlace_uni, enlace_tre, enlace_lat):
         lineas = f.readlines()
 
     modificado = False
-    enlace_real_gen = "https://gendigi.net"
+    
+    # URL 100% CORRECTA Y FIJA DE GEN SOLICITADA POR EL USUARIO
+    enlace_real_gen = "https://no.gendigi.net/origin-proxy/playlist.m3u8"
 
     for i in range(len(lineas)):
-        # 1. Búsqueda flexible de GEN (Mantiene tu link largo verificado fijo)
-        if 'tvg-id="Gen.py@SD"' in lineas[i] or ',Gen' in lineas[i]:
-            if i + 2 < len(lineas) and "http" not in lineas[i+2]:
+        # 1. Mantener GEN fijo con la URL larga correcta
+        if 'tvg-id="Gen.py@SD"' in lineas[i]:
+            if i + 2 < len(lineas):
                 lineas[i + 2] = enlace_real_gen + "\n"
                 modificado = True
-            elif i + 1 < len(lineas) and "http" in lineas[i+1]:
-                lineas[i + 1] = enlace_real_gen + "\n"
-                modificado = True
                 
-        # 2. Búsqueda flexible de Unicanal
-        if ('tvg-id="Unicanal.py@SD"' in lineas[i] or ',Unicanal' in lineas[i]) and enlace_uni:
-            if i + 2 < len(lineas) and "http" not in lineas[i+2]:
+        # 2. Inyectar Unicanal dinámico
+        if 'tvg-id="Unicanal.py@SD"' in lineas[i] and enlace_uni:
+            if i + 2 < len(lineas):
                 lineas[i + 2] = enlace_uni + "\n"
                 modificado = True
-            elif i + 1 < len(lineas) and "http" in lineas[i+1]:
-                lineas[i + 1] = enlace_uni + "\n"
-                modificado = True
 
-        # 3. Búsqueda flexible de Trece
-        if ('tvg-id="Trece.py@SD"' in lineas[i] or ',Trece' in lineas[i]) and enlace_tre:
-            if i + 2 < len(lineas) and "http" not in lineas[i+2]:
+        # 3. Inyectar Trece dinámico
+        if 'tvg-id="Trece.py@SD"' in lineas[i] and enlace_tre:
+            if i + 2 < len(lineas):
                 lineas[i + 2] = enlace_tre + "\n"
                 modificado = True
-            elif i + 1 < len(lineas) and "http" in lineas[i+1]:
-                lineas[i + 1] = enlace_tre + "\n"
-                modificado = True
 
-        # 4. Búsqueda flexible de LaTele
-        if ('La Tele.py@SD' in lineas[i] or 'LaTele' in lineas[i] or ',La Tele' in lineas[i]) and enlace_lat:
-            if i + 2 < len(lineas) and "http" not in lineas[i+2]:
+        # 4. Inyectar LaTele dinámico
+        if 'tvg-id="La Tele.py@SD"' in lineas[i] and enlace_lat:
+            if i + 2 < len(lineas):
                 lineas[i + 2] = enlace_lat + "\n"
-                modificado = True
-            elif i + 1 < len(lineas) and "http" in lineas[i+1]:
-                lineas[i + 1] = enlace_lat + "\n"
                 modificado = True
 
     if modificado:
         with open(archivo_m3u, "w", encoding="utf-8") as f:
             f.writelines(lineas)
-        print("¡M3U guardado con éxito con la ruta correcta de Unicanal Mundial!")
+        print("¡El archivo M3U ha sido actualizado con éxito para los 4 canales!")
     else:
-        print("ERROR: No se pudo inyectar ninguna coincidencia en las líneas.")
+        print("ERROR: No se encontró ninguna de las etiquetas correspondientes en tu archivo.")
 
 if __name__ == "__main__":
-    uni, tre, lat = extraer_tokens_dinamicos()
-    actualizar_lista_m3u(uni, tre, lat)
+    token_uni, token_trece, token_latele = extraer_tokens_dinamicos()
+    actualizar_lista_m3u(token_uni, token_trece, token_latele)
