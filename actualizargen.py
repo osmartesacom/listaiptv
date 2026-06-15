@@ -4,26 +4,33 @@ import os
 import re
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.action_chains import ActionChains
 from webdriver_manager.chrome import ChromeDriverManager
 
 def extraer_tokens_dinamicos():
-    print("Iniciando Chrome con emulación móvil de alta compatibilidad...")
+    print("Iniciando Chrome con interacción simulada...")
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
-    # Emulamos un dispositivo móvil Android, esto se salta la mayoría de los geobloqueos de Dailymotion
     options.add_argument("--user-agent=Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36")
     options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
     
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    driver.set_window_size(360, 740) # Pantalla táctil móvil simulada
 
-    # 1. EXTRACCIÓN DE UNICANAL
+    # 1. EXTRACCIÓN DE UNICANAL (¡Ruta Mundial corregida!)
     enlace_unicanal = None
     try:
-        print("Cargando Unicanal...")
-        driver.get("https://unicanal.com.py")
-        time.sleep(15)
+        print("Cargando Unicanal Mundial y simulando pulsación...")
+        driver.get("https://unicanal.com.py/mundial/") # <-- CORREGIDO AQUÍ
+        time.sleep(8)
+        try:
+            actions = ActionChains(driver)
+            actions.move_by_offset(180, 300).click().perform()
+        except:
+            pass
+        time.sleep(10)
         logs = driver.get_log("performance")
         for entry in logs:
             try:
@@ -39,12 +46,18 @@ def extraer_tokens_dinamicos():
     except Exception as e:
         print(f"Error en Unicanal: {e}")
 
-    # 2. EXTRACCIÓN DE TRECE
+    # 2. EXTRACCIÓN DE TRECE (Ruta Mundial)
     enlace_trece = None
     try:
-        print("Cargando Trece...")
-        driver.get("https://trece.com.py")
-        time.sleep(15)
+        print("Cargando Trece Mundial y simulando pulsación...")
+        driver.get("https://trece.com.py/mundial/")
+        time.sleep(8)
+        try:
+            actions = ActionChains(driver)
+            actions.move_by_offset(180, 300).click().perform()
+        except:
+            pass
+        time.sleep(10)
         logs = driver.get_log("performance")
         for entry in logs:
             try:
@@ -60,12 +73,18 @@ def extraer_tokens_dinamicos():
     except Exception as e:
         print(f"Error en Trece: {e}")
 
-    # 3. EXTRACCIÓN DE LATELE
+    # 3. EXTRACCIÓN DE LATELE (Ruta En Vivo)
     enlace_latele = None
     try:
-        print("Cargando LaTele...")
-        driver.get("https://latele.com.py")
-        time.sleep(15)
+        print("Cargando LaTele y simulando pulsación...")
+        driver.get("https://www.latele.com.py/en-vivo")
+        time.sleep(8)
+        try:
+            actions = ActionChains(driver)
+            actions.move_by_offset(180, 300).click().perform()
+        except:
+            pass
+        time.sleep(10)
         logs = driver.get_log("performance")
         for entry in logs:
             try:
@@ -101,9 +120,9 @@ def actualizar_lista_m3u(enlace_uni, enlace_tre, enlace_lat):
     enlace_real_gen = "https://gendigi.net"
 
     for i in range(len(lineas)):
-        # 1. Búsqueda flexible de GEN (por ID o por texto de nombre de canal)
+        # 1. Búsqueda flexible de GEN (Mantiene tu link largo verificado fijo)
         if 'tvg-id="Gen.py@SD"' in lineas[i] or ',Gen' in lineas[i]:
-            if i + 2 < len(lineas) and "http" not in lineas[i+2]: # Verifica que estemos modificando el enlace
+            if i + 2 < len(lineas) and "http" not in lineas[i+2]:
                 lineas[i + 2] = enlace_real_gen + "\n"
                 modificado = True
             elif i + 1 < len(lineas) and "http" in lineas[i+1]:
@@ -129,7 +148,7 @@ def actualizar_lista_m3u(enlace_uni, enlace_tre, enlace_lat):
                 modificado = True
 
         # 4. Búsqueda flexible de LaTele
-        if ('La Tele.py@SD' in lineas[i] or ',La Tele' in lineas[i]) and enlace_lat:
+        if ('La Tele.py@SD' in lineas[i] or 'LaTele' in lineas[i] or ',La Tele' in lineas[i]) and enlace_lat:
             if i + 2 < len(lineas) and "http" not in lineas[i+2]:
                 lineas[i + 2] = enlace_lat + "\n"
                 modificado = True
@@ -140,7 +159,7 @@ def actualizar_lista_m3u(enlace_uni, enlace_tre, enlace_lat):
     if modificado:
         with open(archivo_m3u, "w", encoding="utf-8") as f:
             f.writelines(lineas)
-        print("¡M3U guardado con éxito con la nueva lógica móvil!")
+        print("¡M3U guardado con éxito con la ruta correcta de Unicanal Mundial!")
     else:
         print("ERROR: No se pudo inyectar ninguna coincidencia en las líneas.")
 
