@@ -1247,7 +1247,7 @@ https://stream1.sersat.com/hls/garagetv.m3u8
 https://stream.oursnetworktv.com/latin/gardeniasTv/playlist.m3u8
 
 #EXTINF:-1 tvg-id="Gen.py@SD" tvg-logo="https://i.imgur.com/vEMnZF4.png" http-referrer="https://www.gen.com.py" group-title="General",Gen
-#EXTVLCOPT:http-referrer=https://www.gen.com.py/
+https://gendigi.net
 https://no.gendigi.net/origin-proxy/playlist.m3u8
 
 #EXTINF:-1 tvg-id="GTV.gt@SD" tvg-logo="https://i.imgur.com/gUiIC8E.png" group-title="Entertainment",Génesis TV (768p) [Not 24/7]
