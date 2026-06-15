@@ -16,19 +16,25 @@ def extraer_link_gen():
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     driver.get("https://gen.com.py")
     
-    time.sleep(12)  # Espera a que cargue el reproductor web
+    time.sleep(15)  # Subimos a 15 segundos para asegurar la carga completa
     
     link_m3u8 = None
     logs = driver.get_log("performance")
     driver.quit()
     
     for entry in logs:
-        log = json.loads(entry["message"])["message"]
-        if "Network.requestWillBeSent" in log["method"]:
-            url = log["params"]["request"]["url"]
-            if ".m3u8" in url and "token=" in url:
-                link_m3u8 = url
-                break
+        try:
+            log = json.loads(entry["message"])["message"]
+            if "Network.requestWillBeSent" in log["method"]:
+                params = log.get("params", {})
+                request_data = params.get("request", {})
+                url = request_data.get("url", "")
+                
+                if ".m3u8" in url and "token=" in url:
+                    link_m3u8 = url
+                    break
+        except Exception:
+            continue  # Si un log no tiene la estructura esperada, lo salta sin romper el script
                 
     return link_m3u8
 
@@ -48,12 +54,9 @@ def actualizar_lista_m3u(nuevo_enlace):
 
     modificado = False
 
-    # Recorremos tu lista buscando tu identificador exacto: "Gen.py@SD"
     for i in range(len(lineas)):
         if 'tvg-id="Gen.py@SD"' in lineas[i]:
-            # Comprobamos que existan las líneas de abajo para no desbordar el archivo
             if i + 2 < len(lineas):
-                # Tu enlace real está dos líneas más abajo de la etiqueta #EXTINF (saltando el #EXTVLCOPT)
                 lineas[i + 2] = nuevo_enlace + "\n"
                 modificado = True
                 break
@@ -61,7 +64,7 @@ def actualizar_lista_m3u(nuevo_enlace):
     if modificado:
         with open(archivo_m3u, "w", encoding="utf-8") as f:
             f.writelines(lineas)
-        print("¡El enlace de GEN ha sido actualizado correctamente en tu línea 1251!")
+        print("¡El enlace de GEN ha sido actualizado correctamente en tu línea!")
     else:
         print("ERROR: No se encontró la etiqueta tvg-id=\"Gen.py@SD\" en tu archivo.")
 
