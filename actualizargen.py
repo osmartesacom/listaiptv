@@ -2,7 +2,7 @@ import os
 
 def actualizar_lista_m3u():
     # URL 100% confirmada con la ruta y subdominio correctos
-    enlace_real_gen = "https://gendigi.net"
+    enlace_real_gen = "https://no.gendigi.net/origin-proxy/playlist.m3u8"
     
     archivo_m3u = "listaespanhol.m3u"
     
