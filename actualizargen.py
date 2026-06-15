@@ -6,7 +6,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 
-def extraer_tokens_dinamicos():
+def actualizar_lista_m3u():
     print("Iniciando Chrome en la nube...")
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
@@ -20,7 +20,7 @@ def extraer_tokens_dinamicos():
     enlace_unicanal = None
     try:
         print("Navegando a Unicanal...")
-        driver.get("https://unicanal.com.py")
+        driver.get("https://unicanal.com.py/")
         time.sleep(15)
         logs = driver.get_log("performance")
         for entry in logs:
@@ -30,7 +30,7 @@ def extraer_tokens_dinamicos():
                     url = log["params"]["request"]["url"]
                     if ".m3u8" in url and ("dmcdn.net" in url or "sec2" in url):
                         enlace_unicanal = url
-                        print(f"-> Unicanal conseguido: {enlace_unicanal[:60]}...")
+                        print(f"-> Unicanal conseguido con éxito.")
                         break
             except Exception:
                 continue
@@ -51,7 +51,7 @@ def extraer_tokens_dinamicos():
                     url = log["params"]["request"]["url"]
                     if ".m3u8" in url and ("dmcdn.net" in url or "sec2" in url):
                         enlace_trece = url
-                        print(f"-> Trece conseguido: {enlace_trece[:60]}...")
+                        print(f"-> Trece conseguido con éxito.")
                         break
             except Exception:
                 continue
@@ -76,17 +76,18 @@ def extraer_tokens_dinamicos():
             except Exception:
                 continue
         
-        # Si capturó un chunklist temporal en LaTele, lo convertimos a playlist maestra
+        # Ajustamos LaTele si captura el chunklist temporal
         if enlace_latele and "chunklist_" in enlace_latele:
             enlace_latele = re.sub(r'chunklist_[^/]+\.m3u8', 'playlist.m3u8', enlace_latele)
-            print(f"-> LaTele conseguido y corregido a playlist: {enlace_latele[:60]}...")
+            print(f"-> LaTele conseguido y corregido a playlist.")
     except Exception as e:
         print(f"Error en LaTele: {e}")
 
     driver.quit()
-    return enlace_unicanal, enlace_trece, enlace_latele
 
-def actualizar_lista_m3u(enlace_uni, enlace_tre, enlace_lat):
+    # -------------------------------------------------------------
+    # INYECCIÓN E IMPRESIÓN DE DATOS EN TU LISTA M3U
+    # -------------------------------------------------------------
     archivo_m3u = "listaespanhol.m3u"
     
     if not os.path.exists(archivo_m3u):
@@ -98,42 +99,40 @@ def actualizar_lista_m3u(enlace_uni, enlace_tre, enlace_lat):
 
     modificado = False
     
-    # URL 100% CORRECTA Y FIJA DE GEN SOLICITADA POR EL USUARIO
+    # Tu enlace 100% verificado y preferido para GEN
     enlace_real_gen = "https://no.gendigi.net/origin-proxy/playlist.m3u8"
 
     for i in range(len(lineas)):
-        # 1. Mantener GEN fijo con la URL larga correcta
+        # 1. Dejar GEN fijo con la URL larga
         if 'tvg-id="Gen.py@SD"' in lineas[i]:
             if i + 2 < len(lineas):
                 lineas[i + 2] = enlace_real_gen + "\n"
                 modificado = True
                 
-        # 2. Inyectar Unicanal dinámico
-        if 'tvg-id="Unicanal.py@SD"' in lineas[i] and enlace_uni:
+        # 2. Inyectar Unicanal capturado
+        if 'tvg-id="Unicanal.py@SD"' in lineas[i] and enlace_unicanal:
             if i + 2 < len(lineas):
-                lineas[i + 2] = enlace_uni + "\n"
+                lineas[i + 2] = enlace_unicanal + "\n"
                 modificado = True
 
-        # 3. Inyectar Trece dinámico
-        if 'tvg-id="Trece.py@SD"' in lineas[i] and enlace_tre:
+        # 3. Inyectar Trece capturado
+        if 'tvg-id="Trece.py@SD"' in lineas[i] and enlace_trece:
             if i + 2 < len(lineas):
-                lineas[i + 2] = enlace_tre + "\n"
+                lineas[i + 2] = enlace_trece + "\n"
                 modificado = True
 
-        # 4. Inyectar LaTele dinámico
-        if 'tvg-id="La Tele.py@SD"' in lineas[i] and enlace_lat:
+        # 4. Inyectar LaTele capturado
+        if 'tvg-id="La Tele.py@SD"' in lineas[i] and enlace_latele:
             if i + 2 < len(lineas):
-                lineas[i + 2] = enlace_lat + "\n"
+                lineas[i + 2] = enlace_latele + "\n"
                 modificado = True
 
     if modificado:
         with open(archivo_m3u, "w", encoding="utf-8") as f:
             f.writelines(lineas)
-        print("¡El archivo M3U ha sido actualizado con éxito para los 4 canales!")
+        print("¡El archivo M3U ha sido actualizado correctamente con los 4 canales paraguayos!")
     else:
-        print("ERROR: No se encontró ninguna de las etiquetas correspondientes en tu archivo.")
+        print("ERROR: No se mapeó ninguna etiqueta dentro de la lista.")
 
 if __name__ == "__main__":
-    token_uni, token_trece, token_latele = extraer_tokens_dinamicos()
-    actualizar_lista_m3u(token_uni, token_trece, token_latele)
-
+    actualizar_lista_m3u()
