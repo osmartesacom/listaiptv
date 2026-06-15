@@ -23,7 +23,7 @@ jobs:
         pip install -r requirements.txt
 
     - name: Ejecutar script extractor
-      run: python actualizargen.py
+      run: python actualizargen.py  # <-- Corregido aquí para que use tu nombre exacto
 
     - name: Subir cambios al repositorio de GitHub
       run: |
