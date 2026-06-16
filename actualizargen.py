@@ -6,7 +6,7 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 
 def extraer_tokens_dinamicos():
-    print("Iniciando Chrome con discriminación estricta de sub-listas...")
+    print("Iniciando Chrome en la nube con filtrado estricto...")
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
@@ -56,7 +56,7 @@ def extraer_tokens_dinamicos():
     except Exception as e:
         print(f"Error en Trece: {e}")
 
-    # 3. EXTRACCIÓN DE LATELE (Filtro Anti-Chunklist)
+    # 3. EXTRACCIÓN DE LATELE (Filtro definitivo basado en tu captura)
     enlace_latele = None
     try:
         print("Navegando a LaTele...")
@@ -69,13 +69,10 @@ def extraer_tokens_dinamicos():
                 if "Network.requestWillBeSent" in log["method"]:
                     url = log["params"]["request"]["url"]
                     
-                    # REGLA DE DIFERENCIACIÓN ABSOLUTA:
-                    # 1. Debe contener 'playlist.m3u8'
-                    # 2. NO debe contener 'chunklist'
-                    # 3. Debe pertenecer a desdeparaguay.net y no ser de Google
-                    if "playlist.m3u8" in url and "chunklist" not in url and "google" not in url and "desdeparaguay.net" in url:
+                    # FILTRO EXACTO: Debe ser de desdeparaguay, debe decir playlist.m3u8 y NUNCA chunklist
+                    if "desdeparaguay.net" in url and "playlist.m3u8" in url and "chunklist" not in url and "google" not in url:
                         enlace_latele = url
-                        print("-> Enlace maestro 'playlist.m3u8' de LaTele diferenciado y capturado.")
+                        print(f"-> ¡Playlist maestra de LaTele capturada!: {enlace_latele[:60]}...")
                         break
             except Exception:
                 continue
@@ -122,7 +119,7 @@ def actualizar_lista_m3u(enlace_uni, enlace_tre, enlace_lat):
     if modificado:
         with open(archivo_m3u, "w", encoding="utf-8") as f:
             f.writelines(lineas)
-        print("¡El archivo M3U ha sido actualizado discriminando sub-listas temporales!")
+        print("¡El archivo M3U ha sido actualizado con el enlace correcto de la captura!")
     else:
         print("ERROR: No se encontraron las etiquetas correspondientes en tu archivo.")
 
