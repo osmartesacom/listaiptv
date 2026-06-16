@@ -96,7 +96,7 @@ def actualizar_lista_m3u(enlace_uni, enlace_tre, enlace_lat):
         lineas = f.readlines()
 
     modificado = False
-    enlace_real_gen = "https://gendigi.net"
+    enlace_real_gen = "https://no.gendigi.net/origin-proxy/playlist.m3u8"
 
     for i in range(len(lineas)):
         if 'tvg-id="Gen.py@SD"' in lineas[i]:
