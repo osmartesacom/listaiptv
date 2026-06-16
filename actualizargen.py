@@ -73,10 +73,10 @@ def extraer_tokens_dinamicos():
                 log = json.loads(entry["message"])["message"]
                 if "Network.requestWillBeSent" in log["method"]:
                     url = log["params"]["request"]["url"]
-                    # Filtro estricto: Captura el PRIMER m3u8 legítimo que encuentre y detiene el bucle
-                    if ".m3u8" in url and "google" not in url:
+                    # FILTRO EVOLUCIONADO: Buscamos obligatoriamente 'playlist.m3u8' para descartar 'chunklist'
+                    if "playlist.m3u8" in url and "google" not in url and "desdeparaguay.net" in url:
                         enlace_latele = url
-                        print("-> Primer m3u8 de LaTele capturado.")
+                        print("-> Lista maestra playlist.m3u8 de LaTele capturada con éxito.")
                         break
             except Exception:
                 continue
