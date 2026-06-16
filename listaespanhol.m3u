@@ -1519,7 +1519,7 @@ https://live-evg1.tv360.bitel.com.pe/bitel/latele/playlist.m3u8
 
 #EXTINF:-1 tvg-id="La Tele.py@SD" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Ltlcolor.png/1280px-Ltlcolor.png" group-title="General" referrer="https://www.latele.com.py", La tele (1080p)
 #EXTVLCOPT:http-referrer=https://www.latele.com.py/
-https://zn1tf.desdeparaguay.net/latele/latele_py_baja?k=277be13d3c1857027bd0938c0d3e393481bf92de1c7e586775826ad0e1b504c5&exp=1781570687
+https://zn1tf.desdeparaguay.net/latele/latele_py_baja/playlist.m3u8?k=527bcef6b3ff64c30f450ae59305b5abf9dcccc035aaa9e5df3be77ac859894b&exp=1781573749
 
 #EXTINF:-1 tvg-id="LaTop1029.hn@SD" tvg-logo="https://i.imgur.com/ZqwLPag.jpg" group-title="Music",La Top 102.9 (720p)
 https://59d39900ebfb8.streamlock.net/top102/top102/playlist.m3u8
@@ -2871,7 +2871,7 @@ http://92.176.119.180:2095/play/a179
 
 #EXTINF:-1 tvg-id="Trece.py@SD" tvg-logo="https://i.imgur.com/cgIv5QK.png" group-title="General" referrer="https://www.trece.com.py", Trece (1080p)
 #EXTVLCOPT:http-referrer=https://www.trece.com.py/
-https://live2.eu-
+https://live2.eu-north-1a.cf.dmcdn.net/sec2(JyZlf6AKrGxPb1Mk-ZUgqxqJ6y1ic61j4JqACndBQw6mMsXAZBPCSyUH8ill1LDcOaiaIIloCmS_XULtt2Cr_yVbx_JOTpTwHnP2GFNYxwV9yx1XQQ_uEt3hStH8FLky)/cloud/3/x9ksaba/s/live-480.m3u8
 
 #EXTINF:-1 tvg-id="TribunaTV.sv@SD" tvg-logo="https://i.imgur.com/C5vHpd0.png" group-title="News",TribunaTV (720p) [Not 24/7]
 https://cloudflare.streamgato.us:3300/live/tribunatvlive.m3u8
@@ -3179,7 +3179,7 @@ https://cdn.streamhispanatv.net:3642/live/unicatvlive.m3u8
 
 #EXTINF:-1 tvg-id="Unicanal.py@SD" tvg-logo="https://i.imgur.com/cgTD2TW.png" group-title="General" referrer="https://www.unicanal.com.py", Unicanal (1080p)
 #EXTVLCOPT:http-referrer=https://www.unicanal.com.py/
-https://live2.eu-north-1b.cf.dmcdn.net/sec2(a3cuE_XAGs2wfquTQY6ndqlWom-GZfF6EaHc8HFVu_T7MOi4f-mPtPdGOfov-g_YBeM_33Y9Pea0xcC9vzwZ0whhrJ9ezVKE0YFsqobBntHLlrOwIWgZYu4wgB7eUVcX)/cloud/3/x9ko9z8/s/live-720.m3u8
+https://live2.eu-north-1b.cf.dmcdn.net/sec2(pVFXW7SS_bkc-suImNE0JoxQLfXhEU0lks4LvVtWkAo_9fpjeX6OVu7vkuJf_wS52lHS2UJnS4EHoPQnpbgALx2F8_LjqFGbGyMtsFPkI7-oTzUu4UXBQxUVT0Zjh3tK)/cloud/3/x9ko9z8/s/live-480.m3u8
 
 #EXTINF:-1 tvg-id="UnifeTV.ar@SD" tvg-logo="https://i.imgur.com/TLM592m.png" group-title="Religious",Unife TV
 https://5dcabf026b188.streamlock.net/StreamUnife/livestream/playlist.m3u8
