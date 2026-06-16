@@ -6,7 +6,7 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 
 def extraer_tokens_dinamicos():
-    print("Iniciando Chrome en la nube con filtrado estricto...")
+    print("Iniciando Chrome en la nube con búsqueda directa por URL base...")
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
@@ -56,23 +56,26 @@ def extraer_tokens_dinamicos():
     except Exception as e:
         print(f"Error en Trece: {e}")
 
-    # 3. EXTRACCIÓN DE LATELE (Filtro definitivo basado en tu captura)
+    # 3. EXTRACCIÓN DE LATELE (Tu propuesta de búsqueda directa)
     enlace_latele = None
     try:
         print("Navegando a LaTele...")
         driver.get("https://www.latele.com.py/en-vivo")
         time.sleep(15)
         logs = driver.get_log("performance")
+        
+        url_base_solicitada = "https://zn1tf.desdeparaguay.net/latele/latele_py_baja/playlist.m3u8"
+        
         for entry in logs:
             try:
                 log = json.loads(entry["message"])["message"]
                 if "Network.requestWillBeSent" in log["method"]:
                     url = log["params"]["request"]["url"]
                     
-                    # FILTRO EXACTO: Debe ser de desdeparaguay, debe decir playlist.m3u8 y NUNCA chunklist
-                    if "desdeparaguay.net" in url and "playlist.m3u8" in url and "chunklist" not in url and "google" not in url:
+                    # BÚSQUEDA DIRECTA: El enlace debe empezar exactamente con la ruta de tu playlist maestra
+                    if url.startswith(url_base_solicitada):
                         enlace_latele = url
-                        print(f"-> ¡Playlist maestra de LaTele capturada!: {enlace_latele[:60]}...")
+                        print("-> ¡Playlist maestra de LaTele localizada por coincidencia exacta!")
                         break
             except Exception:
                 continue
@@ -93,7 +96,7 @@ def actualizar_lista_m3u(enlace_uni, enlace_tre, enlace_lat):
         lineas = f.readlines()
 
     modificado = False
-    enlace_real_gen = "https://no.gendigi.net/origin-proxy/playlist.m3u8"
+    enlace_real_gen = "https://gendigi.net"
 
     for i in range(len(lineas)):
         if 'tvg-id="Gen.py@SD"' in lineas[i]:
@@ -119,7 +122,7 @@ def actualizar_lista_m3u(enlace_uni, enlace_tre, enlace_lat):
     if modificado:
         with open(archivo_m3u, "w", encoding="utf-8") as f:
             f.writelines(lineas)
-        print("¡El archivo M3U ha sido actualizado con el enlace correcto de la captura!")
+        print("¡El archivo M3U ha sido modificado con la búsqueda directa de LaTele con éxito!")
     else:
         print("ERROR: No se encontraron las etiquetas correspondientes en tu archivo.")
 
