@@ -1,13 +1,12 @@
 import time
 import json
 import os
-import re
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 
 def extraer_tokens_dinamicos():
-    print("Iniciando Chrome en la nube...")
+    print("Iniciando Chrome en la nube con filtros específicos...")
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
@@ -29,10 +28,9 @@ def extraer_tokens_dinamicos():
                 log = json.loads(entry["message"])["message"]
                 if "Network.requestWillBeSent" in log["method"]:
                     url = log["params"]["request"]["url"]
-                    # Filtro estricto: Captura el PRIMER m3u8 legítimo que encuentre y detiene el bucle
-                    if ".m3u8" in url and "google" not in url:
+                    if ".m3u8" in url and "google" not in url and ("dmcdn.net" in url or "sec=" in url or "live-" in url):
                         enlace_unicanal = url
-                        print("-> Primer m3u8 de Unicanal capturado.")
+                        print("-> Enlace maestro de Unicanal capturado.")
                         break
             except Exception:
                 continue
@@ -51,10 +49,9 @@ def extraer_tokens_dinamicos():
                 log = json.loads(entry["message"])["message"]
                 if "Network.requestWillBeSent" in log["method"]:
                     url = log["params"]["request"]["url"]
-                    # Filtro estricto: Captura el PRIMER m3u8 legítimo que encuentre y detiene el bucle
-                    if ".m3u8" in url and "google" not in url:
+                    if ".m3u8" in url and "google" not in url and ("dmcdn.net" in url or "sec=" in url or "live-" in url):
                         enlace_trece = url
-                        print("-> Primer m3u8 de Trece capturado.")
+                        print("-> Enlace maestro de Trece capturado.")
                         break
             except Exception:
                 continue
@@ -80,11 +77,6 @@ def extraer_tokens_dinamicos():
                         break
             except Exception:
                 continue
-        
-        # Corrección si el primero capturado resulta ser un chunklist temporal
-        if enlace_latele and "chunklist_" in enlace_latele:
-            enlace_latele = re.sub(r'chunklist_[^/]+\.m3u8', 'playlist.m3u8', enlace_latele)
-            print("-> LaTele corregido a playlist maestra.")
     except Exception as e:
         print(f"Error en LaTele: {e}")
 
@@ -102,9 +94,7 @@ def actualizar_lista_m3u(enlace_uni, enlace_tre, enlace_lat):
         lineas = f.readlines()
 
     modificado = False
-    
-    # URL FIJA DE GEN SOLICITADA
-    enlace_real_gen = "https://no.gendigi.net/origin-proxy/playlist.m3u8"
+    enlace_real_gen = "https://gendigi.net"
 
     for i in range(len(lineas)):
         # 1. Mantener GEN fijo
@@ -125,7 +115,7 @@ def actualizar_lista_m3u(enlace_uni, enlace_tre, enlace_lat):
                 lineas[i + 2] = enlace_tre + "\n"
                 modificado = True
 
-        # 4. Inyectar LaTele dinámico
+        # 4. Inyectar LaTele dinámico corregido
         if 'tvg-id="La Tele.py@SD"' in lineas[i] and enlace_lat:
             if i + 2 < len(lineas):
                 lineas[i + 2] = enlace_lat + "\n"
@@ -134,9 +124,9 @@ def actualizar_lista_m3u(enlace_uni, enlace_tre, enlace_lat):
     if modificado:
         with open(archivo_m3u, "w", encoding="utf-8") as f:
             f.writelines(lineas)
-        print("¡El archivo M3U ha sido actualizado con los primeros m3u8 encontrados!")
+        print("¡El archivo M3U ha sido actualizado con las listas maestras correctas!")
     else:
-        print("ERROR: No se encontraron las etiquetas en tu archivo.")
+        print("ERROR: No se encontraron las etiquetas correspondientes en tu archivo.")
 
 if __name__ == "__main__":
     token_uni, token_trece, token_latele = extraer_tokens_dinamicos()
