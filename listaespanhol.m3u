@@ -3179,7 +3179,7 @@ https://cdn.streamhispanatv.net:3642/live/unicatvlive.m3u8
 
 #EXTINF:-1 tvg-id="Unicanal.py@SD" tvg-logo="https://i.imgur.com/cgTD2TW.png" group-title="General" referrer="https://www.unicanal.com.py", Unicanal (1080p)
 #EXTVLCOPT:http-referrer=https://www.unicanal.com.py/
-https://live2.eu-north-1b.cf.dmcdn.net/sec2(VNgvLQc_G50GPsAbZMZNqnyBoMP7r82iP_7Ycw46VNC5jaUZGBlK7YtRYLmk6raEYL8tygkrqMhEmeLVf2kRiIYgl_lJjphYaWi5aA6Hn7XPZX5zy0yriac_PvOeX_gX)/cloud/3/x9ko9z8/s/live-480.m3u8
+https://live2.eu-north-1b.cf.dmcdn.net/sec2(NM3wlX7Jy0ENpeoTl78DiOI613m4z_lQoaVvsI792NyKX8t34-vrdDRAzCYAku0HjT3Pi5ziJ0-KWl-gxoaNx8W_8oeNcs_n3Ai4-p8TTmmHpXqKB0WzmfBACqvfXjDz)/cloud/3/x9ko9z8/s/live-720.m3u8
 
 #EXTINF:-1 tvg-id="UnifeTV.ar@SD" tvg-logo="https://i.imgur.com/TLM592m.png" group-title="Religious",Unife TV
 https://5dcabf026b188.streamlock.net/StreamUnife/livestream/playlist.m3u8
